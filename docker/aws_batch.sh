@@ -1,11 +1,18 @@
 #!/bin/bash
 cd /cmap/bin/sushi/scripts/
 
+if [[ ! -z $DATA_BUCKET ]]
+then
+  s3fs ${DATA_BUCKET} /data -o ecs
+  echo Bucket mounted
+fi
+
 # read in flagged arguments
 case "$1" in
   fastq2readcount)
     shift
-    Rscript fastq2readcount.R "${@}"
+#    Rscript fastq2readcount.R "${@}"
+     ls /data/*
     ;;
   filter_counts)
     shift
@@ -32,9 +39,9 @@ case "$1" in
     source activate prism
     python seq_to_mts.py "${@}"
     ;;
-  generate_biomarkers)
+  eps_qc)
     shift
-    Rscript generate_biomarkers.R "${@}"
+    Rscript EPS_QC.R "${@}"
     ;;
   --help|-h)
     printf "Available commands:"
