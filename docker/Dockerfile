@@ -31,10 +31,10 @@ RUN wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v1.86.tar.gz && \
 
 RUN mkdir /data
 
-COPY ./ /cmap/bin/sushi/
 COPY ./docker/install_packages.R /src/install_packages.R
-
 RUN Rscript /src/install_packages.R
+
+COPY ./ /cmap/bin/sushi/
 RUN Rscript -e "setwd('/cmap/bin/sushi/');getwd();devtools::install()"
 COPY ./docker/aws_batch.sh /clue/bin/aws_batch
 

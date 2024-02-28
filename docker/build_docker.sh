@@ -2,4 +2,4 @@
 
 cd ../
 
-docker build -t prismcmap/sushi:develop --rm=true -f docker/Dockerfile .
+docker build -t prismcmap/sushi:testing --rm=true -f docker/Dockerfile .
