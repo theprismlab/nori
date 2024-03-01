@@ -1,0 +1,10 @@
+{
+  "name": "portal-data-2-bq",
+  "version": "0.0.1",
+  "dependencies": {
+    "@google-cloud/bigquery": "^6.0.3",
+    "@google-cloud/storage": "^6.7.0",
+    "csv-to-ndjson": "^1.0.1",
+    "underscore": "^1.8.3"
+  }
+}
