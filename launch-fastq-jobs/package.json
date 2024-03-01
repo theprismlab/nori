@@ -4,6 +4,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "^6.0.3",
     "@google-cloud/storage": "^6.7.0",
+    "aws-sdk": "^2.1569.0",
     "csv-to-ndjson": "^1.0.1",
     "underscore": "^1.8.3"
   }
