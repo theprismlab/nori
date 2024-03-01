@@ -1,4 +1,5 @@
 const utils = require("./utils.js");
+const fs = require("fs");
 
 (async function () {
     try {
@@ -17,12 +18,12 @@ const utils = require("./utils.js");
         //get all fastq files
         const allFastqFiles = await utils.getFastqFileList(sampleSheetPaths)
 
+        fs.mkdirSync(WORK_DIR, {recursive: true});
         const nChunks = 10
         const CHUNK_SIZE = 10
         let cursor=0,part = 0;
         while (part < nChunks) {
             const chunk = samplesList.slice(cursor, cursor + CHUNK_SIZE)
-            console.log(chunk)
             const chunkFiles = []
             chunk.forEach( (sample) => {
                 const fastqFiles = allFastqFiles.filter( (file) => {

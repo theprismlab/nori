@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 docker run --rm \
 --name launchFastQProc \
--v /foo/data/:/prism/data/  \
--v /bar/:/root/.credentials/ \
--e AWS_SHARED_CREDENTIALS_FILE=/root/.credentials/aws.credentials \
--e bucketName=data-share.theprismlab.org \
--e datasetId=prism  \
--e tableId=auditTrail \
--e csvFile=/prism/data/foo/test.csv \
--it prismcmap/portaluploads
+-v ~/work/1_Projects/fastq_processing/:/prism/data/  \
+-v ~/.aws/:/root/.aws/ \
+-e S3_BUCKET=data-share.theprismlab.org \
+-e WORK_DIR=/prism/data/out/ \
+-e WALKUP_PATH=genomics-platform/WALKUP-16118 \
+-e CHUNK_SIZE=30 \
+-it prismcmap/fastq-processing:latest
 
