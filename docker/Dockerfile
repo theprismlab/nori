@@ -4,11 +4,8 @@ MAINTAINER Anup Jonchhe <cmap-soft@broadinstitute.org>
 LABEL clue.sushi.pipeline.clue.io.version="0.0.1"
 LABEL clue.sushi.pipeline.clue.io.vendor="PRISM/CMAP"
 
-RUN apt-get -y update
-
-RUN apt-get install -y curl \
-    bzip2 \
-    git
+RUN apt-get -y update && \
+    apt-get install -y --fix-missing curl bzip2 git wget build-essential automake libcurl4-openssl-dev libxml2-dev pkg-config libssl-dev libfuse-dev parallel
 
 RUN curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b && \
@@ -23,10 +20,21 @@ mkdir -p /cmap/bin/sushi/
 
 #COPY ../R /cmap/bin/sushi/R
 #COPY ../scripts /cmap/bin/sushi/scripts
-COPY ./ /cmap/bin/sushi/
-COPY ./docker/install_packages.R /src/install_packages.R
+RUN wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v1.86.tar.gz && \
+    tar -xzvf v1.86.tar.gz && \
+    cd s3fs-fuse-1.86 && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install && \
+    rm -rf s3fs-fuse-1.86 v1.86.tar.gz
 
+RUN mkdir /data
+
+COPY ./docker/install_packages.R /src/install_packages.R
 RUN Rscript /src/install_packages.R
+
+COPY ./ /cmap/bin/sushi/
 RUN Rscript -e "setwd('/cmap/bin/sushi/');getwd();devtools::install()"
 COPY ./docker/aws_batch.sh /clue/bin/aws_batch
 
