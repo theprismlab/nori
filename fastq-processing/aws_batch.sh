@@ -11,7 +11,6 @@ if [[ ! -z $DATA_BUCKET ]]
 then
   s3fs ${DATA_BUCKET} /data -o use_path_request_style $ecs
   echo s3fs ${DATA_BUCKET} /data -o use_path_request_style $ecs
-  ls /data/
   echo Bucket mounted
 fi
 

@@ -28,7 +28,7 @@ fi
 
 ##### seq_to_mts ###
 #aws s3 sync s3://macchiato.clue.io/builds/EPS001_reprocessed2/build/ $PWD/assets/build/
-#docker run -it -v $PWD/assets/:/data prismcmap/sushi:$DOCKER_TAG seq_to_mts \
+#fastq-processing run -it -v $PWD/assets/:/data prismcmap/sushi:$DOCKER_TAG seq_to_mts \
 #    --build_path /data/build/ \
 #    --out /data/build/s3/ \
 #    --build_name EPS001
