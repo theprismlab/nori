@@ -7,35 +7,6 @@ case "$1" in
     shift
     Rscript fastq2readcount.R "${@}"
     ;;
-  filter_counts)
-    shift
-    Rscript filter_counts.R "${@}"
-    ;;
-  CBnormalize)
-    shift
-    Rscript CBnormalize.R "${@}"
-    ;;
-  compute_l2fc)
-    shift
-    Rscript compute_l2fc.R "${@}"
-    ;;
-  collapse_replicates)
-    shift
-    Rscript collapse_replicates.R "${@}"
-    ;;
-  replicate_QC)
-    shift
-    Rscript replicate_QC.R "${@}"
-    ;;
-  seq_to_mts)
-    shift
-    source activate prism
-    python seq_to_mts.py "${@}"
-    ;;
-  generate_biomarkers)
-    shift
-    Rscript generate_biomarkers.R "${@}"
-    ;;
   --help|-h)
     printf "Available commands:"
     echo *.R | sed 's/.R /\n/g'
