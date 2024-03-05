@@ -24,9 +24,9 @@ parser <- argparse::ArgumentParser()
 # specify our desired options 
 parser$add_argument("-v", "--verbose", action="store_true", default=TRUE,
                     help="Print extra output [default]")
-parser$add_argument("-q", "--quietly", action="store_false", 
-                    dest="verbose", help="Print little output")
-parser$add_argument("--wkdir", default=getwd(), help="Working directory")
+parser$add_argument("-c", "--fastq_chunk_file", default="",
+                    help="File containing fastq files to process")
+parser$add_argument("-s", "--seq_type", default = "DRAGEN", help = "Designate DRAGEN if from DRAGEN")
 parser$add_argument("-f", "--fastq", default="fastq/",
                     help="Path to directory containing fastq files")
 parser$add_argument("-i1", "--index_1", default="", help = "Index 1 code")
@@ -36,14 +36,14 @@ parser$add_argument("-o", "--out", default="", help = "Output path. Default is w
 parser$add_argument("-w", "--write_interval", default=500, help = "integer for how often a temp count file is written.")
 parser$add_argument("-l", "--barcode_lengths", default='8,8,24',
                     help = "Three number, comma-separated string that denotes, PLATE_BC_LEN,WELL_BC_LEN,CELL_BC_LEN, e.g. 8,8,24")
-parser$add_argument("-s", "--seq_type", default = "", help = "Designate DRAGEN if from DRAGEN")
+
 
 # get command line options, if help option encountered print help and exit
 args <- parser$parse_args()
 
 #Save arguments
 if (args$out == ""){
-  args$out = args$wkdir
+  args$out = getwd()
 }
 #print_args(args)
 
@@ -52,17 +52,29 @@ if (!dir.exists(args$out)){
   dir.create(args$out)
 }
 
-read_directory_contents <- c(args$fastq) %>% 
-  purrr::map(list.files, full.names = T) %>%
-  purrr::reduce(union)
+if (is.null(args$write_interval)){
+  write_interval = NA
+} else {
+  write_interval = as.numeric(args$write_interval)
+}
 
-barcode_read_files <- read_directory_contents %>%
-  purrr::keep(stringr::str_detect, fixed(args$barcode_suffix)) %>%
-  sort()
+if (args$fastq_chunk_file != ""){
+  read_directory_contents <- readLines(args$fastq_chunk_file)
+  print(paste("files in chunk_file", length(read_directory_contents)))
+} else {
+    read_directory_contents <- c(args$fastq) %>%
+      purrr::map(list.files, full.names = T) %>%
+      purrr::reduce(union)
+}
+
 
 if(args$seq_type == "DRAGEN"){
-  barcode_read_files %<>% purrr::keep(stringr::str_detect, fixed("_R1_001.fastq"))
+  barcode_read_files <- read_directory_contents %>% purrr::keep(stringr::str_detect, fixed("_R1_001.fastq"))
 } else {
+ barcode_read_files <- read_directory_contents %>%
+     purrr::keep(stringr::str_detect, fixed(args$barcode_suffix)) %>%
+     sort()
+
   # plates
   index_1_files <- read_directory_contents %>%
     purrr::keep(stringr::str_detect, fixed(args$index_1)) %>%
@@ -79,12 +91,9 @@ if(args$seq_type == "DRAGEN"){
 
 print(paste("num barcode files", length(barcode_read_files)))
 
-print("creating read count file")
-
-if (is.null(args$write_interval)){
-  write_interval = NA
-} else {
-  write_interval = as.numeric(args$write_interval)
+if (length(barcode_read_files) == 0) {
+  cat("No barcode read files found")
+  quit(save="no", status=0)
 }
 
 #barcode_read_lengths
@@ -108,13 +117,13 @@ if (args$seq_type == "DRAGEN"){
 }
 
 
-
-
-rc_out_file = paste(
-  args$out,
-  'raw_counts.csv',
-  sep='/'
-)
-print(paste("writing to file: ", rc_out_file))
-write.csv(raw_counts, rc_out_file, row.names=F, quote=F)
+# Don't write collapsed file
+#
+# rc_out_file = paste(
+#   args$out,
+#   'raw_counts.csv',
+#   sep='/'
+# )
+# print(paste("writing to file: ", rc_out_file))
+# write.csv(raw_counts, rc_out_file, row.names=F, quote=F)
 

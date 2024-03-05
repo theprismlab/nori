@@ -12,8 +12,11 @@ const fs = require("fs");
         const s3_bucket = process.env.S3_BUCKET
         const walkup_path = process.env.WALKUP_PATH
         const walkup_order = walkup_path.split("/")[1]
-        const WORK_DIR = process.env.WORK_DIR + `/${walkup_order}/`
+        const WORK_DIR = process.env.WORK_DIR + `/chunk-files/`
 
+        if (!process.env.CHUNK_SIZE) {
+            throw "CHUNK_SIZE is not defined"
+        }
         const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE)
 
         const sampleSheetPaths = await utils.getSampleSheetPaths(s3_bucket, walkup_path)
@@ -28,15 +31,25 @@ const fs = require("fs");
         let cursor=0,part = 0;
         while (part < nChunks) {
             const chunk = samplesList.slice(cursor, cursor + CHUNK_SIZE)
-            const chunkFiles = []
+            let chunkFiles = []
             chunk.forEach( (sample) => {
                 const fastqFiles = allFastqFiles.filter( (file) => {
-                    return file.includes(sample.Sample_ID)
+                    if (sample.Sample_ID){
+                        return file.includes(sample.Sample_ID)
+                    } else {
+                        return false
+                    }
                 })
+                if (fastqFiles.length > 2) {
+                    console.log(sample)
+                    console.log(fastqFiles)
+                }
                 chunkFiles.push(...fastqFiles)
             })
-            const dataString = chunkFiles.join("\n");
-            fs.writeFileSync(WORK_DIR + `fastq-chunk-${part}.csv`, dataString)
+            chunkFiles = chunkFiles.map( (file) => { return "/data/" + file }); //bucket path
+            console.log("Chunk: ", part, ", Files:", chunkFiles.length)
+            const dataString = chunkFiles.join("\n") + "\n";
+            fs.writeFileSync(WORK_DIR + `fastq-chunk-${part}.txt`, dataString)
             cursor += CHUNK_SIZE
             part += 1
         }

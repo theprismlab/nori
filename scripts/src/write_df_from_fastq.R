@@ -191,8 +191,7 @@ write_df_from_fastq_DRAGEN <- function(
     dplyr::ungroup()
   print (paste("collapsed across", length(cumulative_count_df_uncollapsed$flowcell_name %>% unique()), "flowcells"))
   if(!is.null(save_loc)){
-    write_csv(cumulative_count_df_uncollapsed, file =  paste0(save_loc, '/raw_counts_uncollapsed.csv')) 
-
+    write_csv(cumulative_count_df_uncollapsed, file =  paste0(save_loc, '/raw_counts_uncollapsed.csv'))
   }
   return(cumulative_count_collapsed_across_flowcells_df) ## we want the collapsed data  
 }

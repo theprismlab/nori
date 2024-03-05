@@ -29,6 +29,10 @@ const fs = require("fs");
                 const fastqFiles = allFastqFiles.filter( (file) => {
                     return file.includes(sample.Sample_ID)
                 })
+                if (fastqFiles.length > 2) {
+                    console.log(sample)
+                    console.log(fastqFiles)
+                }
                 chunkFiles.push(...fastqFiles)
             })
             console.log(chunkFiles)

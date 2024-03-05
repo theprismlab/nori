@@ -11,27 +11,20 @@ if [[ ! -z $DATA_BUCKET ]]
 then
   s3fs ${DATA_BUCKET} /data -o use_path_request_style $ecs
   echo s3fs ${DATA_BUCKET} /data -o use_path_request_style $ecs
+  ls /data/
   echo Bucket mounted
 fi
 
-# read in flagged arguments
-case "$1" in
-  fastq2readcount)
-    shift
-    Rscript fastq2readcount.R "${@}"
-    ;;
-  --help|-h)
-    printf "Available commands:"
-    echo *.R | sed 's/.R /\n/g'
-    ;;
-  *)
-    printf "Unknown parameter: %s \n" "$1"
-    printf "Available commands:\n\t"
-    echo *.R | sed -r 's/.R\s?/\n\t/g'
-    exit -1
-    shift
-    ;;
-esac
+if [[ ! -z "${AWS_BATCH_JOB_ARRAY_INDEX}" ]]
+then
+  CHUNK_FILE=$WORK_DIR/"chunk-files"/"fastq-chunk-"${AWS_BATCH_JOB_ARRAY_INDEX}".txt"
+  OUT_DIR=$WORK_DIR/raw-count-parts/part-${AWS_BATCH_JOB_ARRAY_INDEX}
+  mkdir -p $OUT_DIR
+  echo Rscript fastq2readcount.R --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE
+  Rscript fastq2readcount.R --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE
+else
+  Rscript fastq2readcount.R "${@}"
+fi
 
 exit_code=$?
 #echo "$exit_code"
