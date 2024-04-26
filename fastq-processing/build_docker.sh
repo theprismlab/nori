@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+DOCKER_TAG="latest"
 
 cd ../
 
-docker build -t prismcmap/fastq-processing:testing --rm=true -f fastq-processing/Dockerfile .
+docker build -t prismcmap/fastq-processing:${DOCKER_TAG} --rm=true -f fastq-processing/Dockerfile .
 
-docker push prismcmap/fastq-processing:testing
+docker push prismcmap/fastq-processing:${DOCKER_TAG}
