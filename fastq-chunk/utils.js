@@ -20,7 +20,7 @@ function runExec(cmd, options) {
         exec(cmd, options, (error, stdout, stderr) => {
             if (error) return reject(error)
             if (stderr) return reject(stderr)
-            resolve(stdout)
+            resolve({stdout, stderr})
         })
     })
 }
@@ -89,8 +89,10 @@ const self = module.exports = {
         const fastqFiles = await Promise.all(promises);
         const allFastqFiles = []
         fastqFiles.forEach( file_list => {
+            console.log(file_list.length);
             allFastqFiles.push(...file_list)
         })
+        console.log(allFastqFiles.length);
         return allFastqFiles
     },
     getSampleList: async function (sampleSheetPaths) {

@@ -8,7 +8,7 @@ const fs = require("fs");
         const processToRun = process.env.DOCKER_CMD; //For all commands
 
         const walkUpPath = "genomics-platform/WALKUP-16118"
-        const sampleSheetPaths = await utils.getSampleSheetPaths("data-share.theprismlab.org", "genomics-platform/WALKUP-16118")
+        const sampleSheetPaths = await utils.getSampleSheetPaths("data-share.theprismlab.org", "genomics-platform/WALKUP-16680")
 
         //TODO: Should filter to only most recent timestamp for a given sequencer
 

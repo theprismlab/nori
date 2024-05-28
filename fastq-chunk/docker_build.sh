@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DOCKER_TAG="latest"
+DOCKER_TAG="testing"
 
 
 #change the version number for each new build
