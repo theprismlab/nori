@@ -4,13 +4,26 @@ const {Storage} = require('@google-cloud/storage');
 const util = require("node:util");
 const fs = require("fs");
 const _ = require("underscore")
-const exec = util.promisify(require('node:child_process').exec);
+const execPromise = util.promisify(require('node:child_process').exec);
+const { exec } = require('node:child_process')
 // Instantiate clients
 const storage = new Storage();
 const bigquery = new BigQuery();
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
 let batch = null
+
+
+
+function runExec(cmd, options) {
+    return new Promise((resolve, reject) => {
+        exec(cmd, options, (error, stdout, stderr) => {
+            if (error) return reject(error)
+            if (stderr) return reject(stderr)
+            resolve(stdout)
+        })
+    })
+}
 
 
 const self = module.exports = {
@@ -48,7 +61,7 @@ const self = module.exports = {
     },
     getSampleSheetPaths: async function(s3_bucket, walkup_path) {
         const s3_list_cmd = `aws s3 ls s3://${s3_bucket}/${walkup_path}/ --recursive | grep "SampleSheet.csv"`
-        const {stdout, stderr} = await exec(s3_list_cmd);
+        const {stdout, stderr} = await execPromise(s3_list_cmd);
         if (stderr) {
             console.log(stderr);
         }
@@ -59,7 +72,7 @@ const self = module.exports = {
     },
     getAllFastqFiles: async function(s3_bucket, fastq_path) {
         const s3_list_cmd = `aws s3 ls s3://${s3_bucket}/${fastq_path} --recursive | grep ".fastq.gz"`
-        const {stdout, stderr} = await exec(s3_list_cmd);
+        const {stdout, stderr} = await runExec(s3_list_cmd, {maxBuffer: 1024 * 10000})
         if (stderr) {
             console.log(stderr);
         }
