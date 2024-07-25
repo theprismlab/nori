@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 docker run --rm \
---name launchFastQProc \
+--name launchFastQChunk \
 -v $PWD/assets/:/prism/data/  \
 -v ~/.aws/:/root/.aws/ \
 -e S3_BUCKET=data-share.theprismlab.org \
