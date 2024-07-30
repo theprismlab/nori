@@ -179,10 +179,18 @@ write_df_from_fastq_DRAGEN <- function(
     dplyr::bind_rows() %>%
     dplyr::group_by(indeces, forward_read_cl_barcode, flowcell_name, flowcell_lane) %>% 
     dplyr::summarise(n = sum(n, na.rm = T)) %>% 
-    dplyr::ungroup() %>% 
-    dplyr::mutate(index_1 = word(indeces, 1, sep = fixed("+")),
-                  index_2 = word(indeces, 2, sep = fixed("+"))) %>% 
-    dplyr::select(-indeces)
+    dplyr::ungroup()
+
+    # Debugging
+    print(head(cumulative_count_df_uncollapsed$indeces))
+
+    cumulative_count_df_uncollapsed = cumulative_count_df_uncollapsed %>%
+      dplyr::mutate(index_1 = word(indeces, 1, sep = fixed("+")),
+                  index_2 = word(indeces, 2, sep = fixed("+"))) %>%
+      dplyr::select(-indeces)
+
+    print(head(cumulative_count_df_uncollapsed$index_1))
+    print(head(cumulative_count_df_uncollapsed$index_2))
   
   ## get counts summed across different flow cells and lanes. Summing across lanes was implicit before and implicit in other sequencer formats
   cumulative_count_collapsed_across_flowcells_df <- cumulative_count_df_uncollapsed %>% 
@@ -190,7 +198,7 @@ write_df_from_fastq_DRAGEN <- function(
     dplyr::summarise(n = sum(n, na.rm = T)) %>% 
     dplyr::ungroup()
   print (paste("collapsed across", length(cumulative_count_df_uncollapsed$flowcell_name %>% unique()), "flowcells"))
-  if(!is.null(save_loc)){
+  if(!is.null(save_loc)){3
     write_csv(cumulative_count_df_uncollapsed, file =  paste0(save_loc, '/raw_counts_uncollapsed.csv'))
   }
   return(cumulative_count_collapsed_across_flowcells_df) ## we want the collapsed data  
