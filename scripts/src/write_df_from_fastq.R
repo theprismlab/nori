@@ -7,7 +7,7 @@
 #' @param index_1_files - vector of fastq file paths
 #' @param index_2_files - vector of fastq file paths
 #' @param write_interval - integer for how often a temp count file is written, NA by default. 
-#' @return - cumulative_count_df A data.frame of readcounts by index_1, index_2 and forward_read_cl_barcode
+#' @return - cumulative_count_df A data.frame of readcounts by index_1, index_2 and forward_read_barcode
 #' @export 
 write_df_from_fastq <- function(
   forward_read_fastq_files, 
@@ -68,7 +68,7 @@ write_df_from_fastq <- function(
       forward_reads_cl_barcode = as.character(forward_reads_cl_barcode)
       index_1 = as.character(index_1)
       index_2 = as.character(index_2)
-      chunk_df <- data.frame(forward_read_cl_barcode = forward_reads_cl_barcode, index_1 = index_1, index_2 = index_2)
+      chunk_df <- data.frame(forward_read_barcode = forward_reads_cl_barcode, index_1 = index_1, index_2 = index_2)
       
       matches_df <- chunk_df %>%
         dplyr::mutate(index_number = 1:dplyr::n()) 
@@ -79,10 +79,10 @@ write_df_from_fastq <- function(
         next
       } else if (lp > length(cumulative_count_df)) { 
         cumulative_count_df[[lp]] = (matches_df %>% 
-                                     dplyr::count(index_1, index_2, forward_read_cl_barcode))
+                                     dplyr::count(index_1, index_2, forward_read_barcode))
       } else {
         cumulative_count_df[[lp]] = (matches_df %>% 
-          dplyr::count(index_1, index_2, forward_read_cl_barcode) %>% rbind(cumulative_count_df[[lp]])) # new
+          dplyr::count(index_1, index_2, forward_read_barcode) %>% rbind(cumulative_count_df[[lp]])) # new
       }
     }
     close(forward_stream)
@@ -107,7 +107,7 @@ write_df_from_fastq <- function(
   
   cumulative_count_df <- cumulative_count_df %>%
     dplyr::bind_rows() %>% # new 
-    dplyr::group_by(index_1, index_2, forward_read_cl_barcode) %>%
+    dplyr::group_by(index_1, index_2, forward_read_barcode) %>%
     dplyr::summarise(n = sum(n, na.rm = T)) %>%
     dplyr::ungroup()
   
@@ -153,7 +153,7 @@ write_df_from_fastq_DRAGEN <- function(
         ShortRead::sread() %>%
         Biostrings::DNAStringSet()
       
-      forward_reads_cl_barcode <- XVector::subseq(forward_reads_string_set, 1, CL_BC_LENGTH) %>%
+      forward_reads_barcode <- XVector::subseq(forward_reads_string_set, 1, CL_BC_LENGTH) %>%
         as.character()
       
       read_header_str <- as.character(forward_reads_chunk@id)
@@ -163,10 +163,10 @@ write_df_from_fastq_DRAGEN <- function(
       cumulative_count_df_uncollapsed[[lp]] <- data.frame(indeces = substr(x = read_header_str, 
                                                                (read_header_len)-(PLATE_BC_LENGTH+WELL_BC_LENGTH),
                                                                read_header_len),
-                                              forward_read_cl_barcode = forward_reads_cl_barcode,
+                                              forward_read_barcode = forward_reads_barcode,
                                               flowcell_name=flow_cell,
                                               flowcell_lane=flow_lane)  %>%
-        dplyr::count(indeces, forward_read_cl_barcode, flowcell_name, flowcell_lane) 
+        dplyr::count(indeces, forward_read_barcode, flowcell_name, flowcell_lane)
       
       lp <- lp + 1
     }
@@ -177,7 +177,7 @@ write_df_from_fastq_DRAGEN <- function(
   ## cumulative counts separate across different flowcells and flowcell lanes.
   cumulative_count_df_uncollapsed = cumulative_count_df_uncollapsed %>%
     dplyr::bind_rows() %>%
-    dplyr::group_by(indeces, forward_read_cl_barcode, flowcell_name, flowcell_lane) %>% 
+    dplyr::group_by(indeces, forward_read_barcode, flowcell_name, flowcell_lane) %>%
     dplyr::summarise(n = sum(n, na.rm = T)) %>% 
     dplyr::ungroup()
 
@@ -194,7 +194,7 @@ write_df_from_fastq_DRAGEN <- function(
   
   ## get counts summed across different flow cells and lanes. Summing across lanes was implicit before and implicit in other sequencer formats
   cumulative_count_collapsed_across_flowcells_df <- cumulative_count_df_uncollapsed %>% 
-    dplyr::group_by(index_1, index_2, forward_read_cl_barcode) %>%
+    dplyr::group_by(index_1, index_2, forward_read_barcode) %>%
     dplyr::summarise(n = sum(n, na.rm = T)) %>% 
     dplyr::ungroup()
   print (paste("collapsed across", length(cumulative_count_df_uncollapsed$flowcell_name %>% unique()), "flowcells"))
