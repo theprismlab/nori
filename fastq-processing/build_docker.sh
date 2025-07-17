@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DOCKER_TAG="testing"
+DOCKER_TAG="python-testing"
 
 cd ../
 

@@ -31,8 +31,8 @@ fi
 CHUNK_FILE=$WORK_DIR/"chunk-files"/"fastq-chunk-"${batch_index}".txt"
 OUT_DIR=$WORK_DIR/raw-count-parts/part-${batch_index}
 mkdir -p $OUT_DIR
-echo Rscript fastq2readcount.R --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE $bc_lengths_arg
-Rscript fastq2readcount.R --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE $bc_lengths_arg
+echo python fastq2readcount.py --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE $bc_lengths_arg
+python fastq2readcount.py --out $OUT_DIR --fastq_chunk_file $CHUNK_FILE $bc_lengths_arg
 
 exit_code=$?
 #echo "$exit_code"
