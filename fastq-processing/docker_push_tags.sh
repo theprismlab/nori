@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-#docker push prismcmap/sushi:v0.0.2
-docker push prismcmap/fastq-processing:testing
+docker push prismcmap/fastq-processing:python-testing
