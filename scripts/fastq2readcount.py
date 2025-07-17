@@ -244,6 +244,9 @@ def main():
     # Create output directory if it doesn't exist
     Path(args.out).mkdir(parents=True, exist_ok=True)
     
+    # Print configuration to file (matching R version behavior)
+    print_args(args)
+    
     # Parse barcode lengths
     bc_lengths = [int(x) for x in args.barcode_lengths.split(',')]
     plate_bc_len, well_bc_len, cl_bc_len = bc_lengths
@@ -259,7 +262,7 @@ def main():
     
     if args.seq_type == 'DRAGEN':
         # Filter for DRAGEN R1 files
-        barcode_files = [f for f in file_list if '_R1_001.fastq' in f]
+        barcode_files = [f for f in file_list if '_R1_001.fastq' in f or '_R1_001.fastq.gz' in f]
         
         if not barcode_files:
             print("No barcode read files found")
@@ -292,6 +295,12 @@ def main():
         result_df = process_fastq_standard(barcode_files, index1_files, index2_files,
                                          plate_bc_len, well_bc_len, cl_bc_len, 
                                          args.out, args.write_interval)
+    
+    # Save final results (matching R version output format)
+    if not result_df.is_empty():
+        final_output = Path(args.out) / 'raw_counts_uncollapsed.csv.gz'
+        result_df.write_csv(final_output, separator=',')
+        print(f"Final results saved to: {final_output}")
     
     print("Processing completed successfully")
 
