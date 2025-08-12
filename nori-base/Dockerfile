@@ -33,13 +33,16 @@ COPY --from=builder /usr/local/bin/s3fs /usr/local/bin/s3fs
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Set the PATH for the final image and for subsequent RUN commands
+# This line is still important for the final container's environment
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install Python 3.12 and create a virtual environment with it
-RUN uv python install 3.12 && \
-    uv venv /opt/venv --python 3.12
+# Install Python 3.13 and create the venv using the absolute path to uv
+RUN /root/.cargo/bin/uv python install 3.13 && \
+    /root/.cargo/bin/uv venv /opt/venv --python 3.13
 
-# Copy requirements and install them into the venv using uv's fast installer
+# Copy requirements and install them into the venv
 COPY nori-base/requirements.txt .
 RUN /opt/venv/bin/uv pip sync requirements.txt
 # --- End of uv setup ---
