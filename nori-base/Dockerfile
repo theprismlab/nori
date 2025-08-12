@@ -39,7 +39,7 @@ RUN uv python install 3.12 && \
     uv venv /opt/venv --python 3.12
 
 # Copy requirements and install them into the venv using uv's fast installer
-COPY requirements.txt .
+COPY nori-base/requirements.txt .
 RUN /opt/venv/bin/uv pip sync requirements.txt
 # --- End of uv setup ---
 
