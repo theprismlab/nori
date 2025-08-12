@@ -1,0 +1,10 @@
+numpy
+pandas
+PyYAML
+h5py
+requests
+setuptools
+argparse
+pathlib
+jinja2
+simplejson
