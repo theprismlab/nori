@@ -4,6 +4,7 @@ FROM debian:bookworm-slim as builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential automake pkg-config libcurl4-openssl-dev \
     libxml2-dev libssl-dev libfuse-dev wget \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v1.95.tar.gz && \
