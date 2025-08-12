@@ -31,25 +31,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=builder /usr/local/bin/s3fs /usr/local/bin/s3fs
 
-# --- NEW: Modern Python setup with uv ---
+
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# --- START DEBUGGING COMMANDS ---
-# 1. Find out which user is running the build
-RUN echo "Build is running as user: $(whoami)"
+# UPDATED: Set the correct PATH for the final image and subsequent commands
+ENV PATH="/root/.local/bin:${PATH}"
 
-# 2. Find the location of the uv binary
-RUN echo "Searching for the 'uv' executable..." && find / -name "uv"
-# --- END DEBUGGING COMMANDS ---
-
-
-# Set the PATH for the final image and for subsequent RUN commands
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Install Python 3.13 and create the venv using the absolute path to uv
-RUN /root/.cargo/bin/uv python install 3.13 && \
-    /root/.cargo/bin/uv venv /opt/venv --python 3.13
+# UPDATED: Install Python using the correct absolute path to uv
+RUN /root/.local/bin/uv python install 3.13 && \
+    /root/.local/bin/uv venv /opt/venv --python 3.13
 
 # Copy requirements and install them into the venv
 COPY nori-base/requirements.txt .
