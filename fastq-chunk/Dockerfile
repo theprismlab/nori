@@ -2,13 +2,12 @@
 FROM node:22-bookworm-slim
 
 # Use LABEL instead of the deprecated MAINTAINER
-LABEL maintainer="John Davis <cmap-soft@broadinstitute.org>"
+LABEL maintainer="Jacob Asiedu <cmap-soft@broadinstitute.org>"
 LABEL prism-data-warehouse.prism.org.version="0.0.1"
 LABEL prism-data-warehouse.prism.org.vendor="PRISM"
 
-# Install AWS CLI v2 and clean up in a single layer for efficiency
-# This avoids leaving the zip file or installer in the final image
-RUN apt-get update && apt-get install -y --no-install-recommends unzip curl && \
+# Install dependencies, including ca-certificates, and clean up in a single layer
+RUN apt-get update && apt-get install -y --no-install-recommends unzip curl ca-certificates && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
     ./aws/install && \
@@ -19,8 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends unzip curl && \
 # Set the working directory for the application
 WORKDIR /usr/src/app
 
-# Copy only the necessary files for installing dependencies first.
-# This leverages Docker's layer caching.
+# Copy only the necessary files for installing dependencies first
 COPY fastq-chunk/package.json fastq-chunk/package-lock.json* ./
 
 # Install npm dependencies
