@@ -1,4 +1,4 @@
-FROM node:16.13.1
+FROM node:22-bookworm-slim
 MAINTAINER Jacob Asiedu <cmap-soft@broadinstitute.org>
 
 LABEL prism-data-warehouse.prism.org.version="0.0.1"
