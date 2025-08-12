@@ -44,7 +44,7 @@ RUN /root/.local/bin/uv python install 3.13 && \
 
 # Copy requirements and install them into the venv
 COPY nori-base/requirements.txt .
-RUN /opt/venv/bin/uv pip sync requirements.txt
+RUN /root/.local/bin/uv pip sync --python /opt/venv/bin/python requirements.txt
 # --- End of uv setup ---
 
 # Install R packages
