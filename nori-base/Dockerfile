@@ -45,7 +45,7 @@ RUN echo "Searching for the 'uv' executable..." && find / -name "uv"
 
 
 # Set the PATH for the final image and for subsequent RUN commands
-ENV PATH="/root/.cargo/bin:${PATH}" # We will correct this path later
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install Python 3.13 and create the venv using the absolute path to uv
 RUN /root/.cargo/bin/uv python install 3.13 && \
