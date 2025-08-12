@@ -1,46 +1,22 @@
-FROM prismcmap/base-clue-pseq
-#FROM prismcmap/base-clue-pseq-test
-MAINTAINER Anup Jonchhe <cmap-soft@broadinstitute.org>
+# Start from the nori-base image we built in the previous stage.
+# Using a build argument for the tag ensures you use the version just built.
+ARG IMAGE_TAG=latest
+FROM prismcmap/nori-base:${IMAGE_TAG}
+
+# Add labels specific to this image
+LABEL maintainer="Anup Jonchhe <cmap-soft@broadinstitute.org>"
 LABEL clue.sushi.pipeline.clue.io.version="0.0.1"
 LABEL clue.sushi.pipeline.clue.io.vendor="PRISM/CMAP"
 
-RUN apt-get -y update && \
-    apt-get install -y --fix-missing curl bzip2 git wget build-essential automake libcurl4-openssl-dev libxml2-dev pkg-config libssl-dev libfuse-dev parallel
+# --- Application-Specific Setup ---
 
-RUN curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b && \
-    rm Miniconda3-latest-Linux-x86_64.sh
-
-ENV PATH=/miniconda/bin:${PATH}
-
-RUN conda create -y --name prism -c bioconda python=3.6 numpy pandas yaml h5py requests setuptools argparse pathlib pyyaml jinja2 simplejson
-
-RUN mkdir -p /cmap/bin && \
-mkdir -p /cmap/bin/sushi/
-
-#COPY ../R /cmap/bin/sushi/R
-#COPY ../scripts /cmap/bin/sushi/scripts
-RUN wget https://github.com/s3fs-fuse/s3fs-fuse/archive/v1.86.tar.gz && \
-    tar -xzvf v1.86.tar.gz && \
-    cd s3fs-fuse-1.86 && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install && \
-    rm -rf s3fs-fuse-1.86 v1.86.tar.gz
-
-RUN mkdir /data
-
+# Copy and install the R packages required ONLY for this pipeline.
+# The path is correct relative to the project root build context.
 COPY ./fastq-processing/install_packages.R /src/install_packages.R
 RUN Rscript /src/install_packages.R
 
-COPY ./scripts /cmap/bin/sushi/scripts
-COPY ./fastq-processing/aws_batch.sh /clue/bin/aws_batch
-
-WORKDIR /
-ENV PATH /clue/bin:$PATH
-RUN ["chmod","-R", "+x", "/cmap/bin"]
-#RUN ["chmod","-R", "+x", "/cmap/sushi"]
+# The ENTRYPOINT and CMD are inherited from nori-base, but you can
+# override them here if this image needs to run a different default command.
+# Since nori-base also uses aws_batch, this is technically optional but good for clarity.
 ENTRYPOINT ["aws_batch"]
-
 CMD ["-help"]
