@@ -5,3 +5,7 @@ scratch/
 .DS_Store
 /tests/assets/out/
 /tests/assets/build/
+uv.lock
+*.aider*
+*.Rproj*
+.python-version
